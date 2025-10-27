@@ -1,0 +1,1763 @@
+openapi: 3.0.3
+info:
+  title: API de Estadísticas
+  version: 1.0.0
+  description: >
+    API para la gestión de estadísticas mensuales de Undersounds.  
+servers:
+  - url: http://localhost:3000/v1/estadisticas
+    description: Desarrollo local
+  - url: https://api.miapp.com/v1/estadisticas
+    description: Producción
+
+tags:
+  - name: Contenidos
+    description: Estadísticas de canciones y álbumes.
+  - name: Usuarios
+    description: Estadísticas relacionadas con artistas y búsquedas.
+  - name: Comunidades
+    description: Estadísticas de actividad y tamaño de comunidades.
+
+paths:
+
+  /contenidos/valoracion/{id}:
+    get:
+      summary: Obtener la valoración media mensual de un contenido.
+      description: >
+        Devuelve la valoración promedio mensual de una canción o álbum; para ello consulta la API de Contenidos.
+      tags: [Contenidos]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del contenido
+          schema: { type: integer, example: 42 }
+        - name: esAlbum
+          in: query
+          required: true
+          description: Indica si el contenido es un álbum o una canción
+          schema: { type: boolean, example: false }
+      responses:
+        '200':
+          description: Valoración obtenida correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaValoracionElemento' }
+              example:
+                idElemento: 42
+                nombre: "Bajo el Sol"
+                esAlbum: false
+                valoracionMedia: 4
+                totalValoraciones: 128
+                periodo: "2025-09"
+        '404':
+          description: Contenido no encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /contenidos/valoracion:
+    put:
+      summary: Actualizar la valoración media mensual de un contenido
+      description: Actualiza la valoración media mensual del contenido.
+      tags: [Contenidos]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActualizarEstadisticaRequest' }
+            example:
+              idElemento: 42
+              esAlbum: false
+              periodo: "2025-09"
+      responses:
+        '200':
+          description: Valoración actualizada correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaValoracionElemento' }
+        '400':
+          description: Solicitud inválida o formato de periodo incorrecto (YYYY-MM)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Token inválido o usuario no autorizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Contenido no encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /contenidos/comentarios/{id}:
+    get:
+      summary: Obtener el número de comentarios mensuales de un contenido
+      description: >
+        Devuelve el número de comentarios mensual existentes; se comunica con la API de Contenidos para obtener los datos.
+      tags: [Contenidos]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del contenido 
+          schema: { type: integer, example: 42 }
+        - name: esAlbum
+          in: query
+          required: true
+          description: Indica si el contenido es un álbum o una canción
+          schema: { type: boolean, example: false }
+      responses:
+        '200':
+          description: Número de comentarios obtenido correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaComentariosElemento' }
+              example:
+                idElemento: 42
+                nombre: "Bajo el Sol"
+                comentariosTotales: 35
+                periodo: "2025-09"
+        '404':
+          description: Contenido no encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /contenidos/comentarios:
+    put:
+      summary: Actualizar el número de comentarios mensuales de un contenido
+      description: Actualiza el número de comentarios mensual de un contenido.
+      tags: [Contenidos]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActualizarEstadisticaRequest' }
+            example:
+              idElemento: 42
+              esAlbum: false
+              periodo: "2025-09"
+      responses:
+        '200':
+          description: Conteo de comentarios actualizado correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaComentariosElemento' }
+        '400':
+          description: Solicitud inválida o periodo incorrecto (YYYY-MM)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Token inválido o usuario no autorizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Contenido no encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+
+  /contenidos/reproducciones/{id}:
+    get:
+      summary: Obtener el número de reproducciones mensuales
+      description: >
+        Devuelve las reproducciones mensuales del contenido; se comunica con la API de Contenidos para ello.
+      tags: [Contenidos]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del contenido 
+          schema: { type: integer, example: 42 }
+        - name: esAlbum
+          in: query
+          required: true
+          description: Indica si el contenido es un álbum o una canción 
+          schema: { type: boolean, example: false }
+      responses:
+        '200':
+          description: Reproducciones obtenidas correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaReproduccionesElemento' }
+              example:
+                idElemento: 42
+                nombre: "Bajo el Sol"
+                esAlbum: false
+                numRep: 8542
+                periodo: "2025-09"
+        '404':
+          description: Contenido no encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /contenidos/reproducciones:
+    put:
+      summary: Actualizar el número de reproducciones mensuales
+      description: Actualiza el número de reproducciones mensual de un contenido.
+      tags: [Contenidos]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActualizarEstadisticaRequest' }
+            example:
+              idElemento: 42
+              esAlbum: false
+              periodo: "2025-09"
+      responses:
+        '200':
+          description: Reproducciones actualizadas correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaReproduccionesElemento' }
+        '400':
+          description: Solicitud inválida o periodo incorrecto (YYYY-MM)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Token inválido o usuario no autorizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Contenido no encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+
+  /usuarios/artistas/oyentes/{id}:
+    get:
+      summary: Obtener el número de oyentes mensuales de un artista
+      description: Devuelve el número de oyentes del artista, comunicándose con la API de Artistas.
+      tags: [Usuarios]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del artista 
+          schema: { type: integer, example: 10 }
+      responses:
+        '200':
+          description: Número de oyentes obtenido correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaOyentesArtista' }
+              example:
+                idArtista: 10
+                nombreArtistico: "Luna Nova"
+                oyentes: 15600
+                periodo: "2025-09"
+        '404':
+          description: Artista no encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /usuarios/artistas/oyentes:
+    put:
+      summary: Actualizar el número de oyentes mensuales de un artista
+      description: Actualiza el número de oyentes mensual de un artista.
+      tags: [Usuarios]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActualizarEstadisticaRequest' }
+            example:
+              idArtista: 10
+              periodo: "2025-09"
+      responses:
+        '200':
+          description: Oyentes actualizados correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaOyentesArtista' }
+        '400':
+          description: Solicitud inválida o periodo incorrecto (YYYY-MM)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Token inválido o usuario no autorizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Artista no encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+
+  /usuarios/artistas/seguidores/{id}:
+    get:
+      summary: Obtener el número de seguidores mensuales de un artista
+      description: Devuelve el número de seguidores de un artista, comunicándose con la API de Artistas.
+      tags: [Usuarios]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del artista (idusuario en la tabla artista)
+          schema: { type: integer, example: 10 }
+      responses:
+        '200':
+          description: Seguidores obtenidos correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaSeguidoresArtista' }
+              example:
+                idArtista: 10
+                nombreArtistico: "Luna Nova"
+                seguidores: 9820
+                periodo: "2025-09"
+        '404':
+          description: Artista no encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /usuarios/artistas/seguidores:
+    put:
+      summary: Actualizar el número de seguidores mensuales de un artista
+      description: Actualiza el número de seguidores mensual de un artista.
+      tags: [Usuarios]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActualizarEstadisticaRequest' }
+            example:
+              idArtista: 10
+              periodo: "2025-09"
+      responses:
+        '200':
+          description: Seguidores actualizados correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaSeguidoresArtista' }
+        '400':
+          description: Solicitud inválida o periodo incorrecto (YYYY-MM)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Token inválido o usuario no autorizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Artista no encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+
+
+  /contenidos/genero/top:
+    get:
+      summary: Obtener los géneros más populares del mes
+      description: >
+        Devuelve los géneros más populares del mes (a partir de reproducciones).
+      tags: [Contenidos]
+      responses:
+        '200':
+          description: Top de géneros obtenido correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstadisticaGenero'
+              example:
+                - idGenero: 1
+                  nombreGenero: "Pop"
+                  numRep: 32.000
+                  periodo: "2025-09"
+                - idGenero: 2
+                  nombreGenero: "Rock"
+                  numRep: 27.111
+                  periodo: "2025-09"
+                - idGenero: 3
+                  nombreGenero: "Reggaetón"
+                  numRep: 18.722
+                  periodo: "2025-09"
+        '404':
+          description: Género no encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+
+    put:
+      summary: Actualizar los géneros más populares del mes
+      tags: [Contenidos]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActualizarEstadisticaRequest' }
+            example:
+              periodo: "2025-09"
+      responses:
+        '200':
+          description: Top de géneros actualizado correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaGenero' }
+        '400':
+          description: Solicitud inválida o periodo incorrecto (YYYY-MM)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Token inválido o usuario no autorizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Género no encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+
+  /usuarios/artistas/top:
+    get:
+      summary: Obtener los artistas más buscados del mes
+      description: >
+        Devuelve el ranking de artistas más buscados del mes. 
+      tags: [Usuarios]
+      responses:
+        '200':
+          description: Top de artistas más buscados obtenido correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaArtistasMasBuscados' }
+              example:
+                - idArtista: 10
+                  nombreArtistico: "Luna Nova"
+                  busquedas: 15600
+                  periodo: "2025-09"
+                - idArtista: 11
+                  nombreArtistico: "María Cruz"
+                  busquedas: 14600
+                  periodo: "2025-09"
+                - idArtista: 12
+                  nombreArtistico: "Lun"
+                  busquedas: 13600
+                  periodo: "2025-09"
+        '404':
+          description: Usuario o criterio de consulta no encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+    put:
+      summary: Actualizar el top de artistas más buscados
+      description: >
+        Recalcula el top de artistas.
+      tags: [Usuarios]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActualizarEstadisticaRequest' }
+            example:
+              periodo: "2025-09"
+      responses:
+        '200':
+          description: Top de artistas actualizado correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaArtistasMasBuscados' }
+        '400':
+          description: Solicitud inválida o periodo incorrecto (YYYY-MM)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Token inválido o usuario no autorizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Usuario o criterio de consulta no encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /usuarios/artistas/oyentes/top:
+    get:
+      summary: Obtener el top de artistas con más oyentes del mes
+      description: >
+        Devuelve el ranking de artistas con mayor número de oyentes durante el mes indicado.
+      tags: [Usuarios]
+      responses:
+        '200':
+          description: Top de artistas con más oyentes obtenido correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaTopOyentesArtistas' }
+              example:
+                - idArtista: 1
+                  nombreArtistico: "Luna Nova"
+                  oyentes: 15600
+                  periodo: "2025-09"
+                - idArtista: 2
+                  nombreArtistico: "Solaris"
+                  oyentes: 14890
+                  periodo: "2025-09"
+                - idArtista: 3
+                  nombreArtistico: "Echo Wave"
+                  oyentes: 13950
+                  periodo: "2025-09"
+        '404':
+          description: No se encontraron artistas con oyentes en el periodo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+    put:
+      summary: Actualizar el top de artistas con más oyentes
+      description: >
+        Recalcula el ranking de artistas con mayor número de oyentes del mes indicado.
+      tags: [Usuarios]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActualizarEstadisticaRequest' }
+            example:
+              periodo: "2025-09"
+      responses:
+        '200':
+          description: Top de artistas con más oyentes actualizado correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaTopOyentesArtistas' }
+        '400':
+          description: Solicitud inválida o formato de periodo incorrecto (YYYY-MM)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Token inválido o usuario no autorizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /usuarios/artistas/seguidores/top:
+    get:
+      summary: Obtener el top de artistas con más seguidores del mes
+      description: >
+        Devuelve el ranking de artistas con mayor número de seguidores durante el mes indicado.
+      tags: [Usuarios]
+      responses:
+        '200':
+          description: Top de artistas con más seguidores obtenido correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaTopSeguidoresArtistas' }
+              example:
+                - idArtista: 4
+                  nombreArtistico: "María Cruz"
+                  seguidores: 9800
+                  periodo: "2025-09"
+                - idArtista: 5
+                  nombreArtistico: "Vortex"
+                  seguidores: 9200
+                  periodo: "2025-09"
+                - idArtista: 6
+                  nombreArtistico: "Zeta Flow"
+                  seguidores: 8750
+                  periodo: "2025-09"
+        '404':
+          description: No se encontraron artistas con seguidores en el periodo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+    put:
+      summary: Actualizar el top de artistas con más seguidores
+      description: >
+        Recalcula el ranking de artistas con mayor número de seguidores del mes indicado.
+      tags: [Usuarios]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActualizarEstadisticaRequest' }
+            example:
+              periodo: "2025-09"
+      responses:
+        '200':
+          description: Top de artistas con más seguidores actualizado correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaTopSeguidoresArtistas' }
+        '400':
+          description: Solicitud inválida o formato de periodo incorrecto (YYYY-MM)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Token inválido o usuario no autorizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  
+  /comunidades/activas/top:
+    get:
+      summary: Obtener las comunidades más activas del mes
+      description: >
+        Devuelve el ranking de comunidades con más publicaciones durante el mes indicado, se tiene que comunicar con la API de comunidades.
+      tags: [Comunidades]
+      responses:
+        '200':
+          description: Top de comunidades más activas obtenido correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaComunidadesMasActivas' }
+              example:
+                - idComunidad: 1
+                  nombre: "Pop Fans"
+                  publicacionesMes: 245
+                  periodo: "2025-09"
+                - idComunidad: 2
+                  nombre: "Rock Nation"
+                  publicacionesMes: 198
+                  periodo: "2025-09"
+                - idComunidad: 3
+                  nombre: "Indie Vibes"
+                  publicacionesMes: 174
+                  periodo: "2025-09"
+        '404':
+          description: No se encontraron comunidades activas
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+    put:
+      summary: Actualizar el top de comunidades más activas
+      description: >
+        Recalcula el top de comunidades en base al número de publicaciones del mes.
+      tags: [Comunidades]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActualizarEstadisticaRequest' }
+            example:
+              periodo: "2025-09"
+      responses:
+        '200':
+          description: Top de comunidades más activas actualizado correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaComunidadesMasActivas' }
+        '400':
+          description: Solicitud inválida o formato de periodo incorrecto (YYYY-MM)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Token inválido o usuario no autorizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /comunidades/activas/{id}:
+    get:
+      summary: Obtener los datos de una comunidad activa específica
+      description: >
+        Devuelve la información mensual de una comunidad destacada por su nivel de actividad (número de publicaciones).
+        Se comunica con la API de Comunidades para obtener los datos.
+      tags: [Comunidades]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la comunidad
+          schema: { type: integer, example: 1 }
+      responses:
+        '200':
+          description: Datos de la comunidad activa obtenidos correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaComunidadActiva' }
+              example:
+                idComunidad: 1
+                nombre: "Pop Fans"
+                publicacionesMes: 245
+                periodo: "2025-09"
+        '404':
+          description: Comunidad no encontrada o sin datos disponibles
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /comunidades/activas:
+    put:
+      summary: Actualizar los datos de una comunidad activa
+      description: >
+        Actualiza la información mensual de una comunidad específica según su número de publicaciones.
+      tags: [Comunidades]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idComunidad:
+                  type: integer
+                  description: ID de la comunidad a actualizar
+                  example: 1
+                periodo:
+                  type: string
+                  description: Periodo en formato YYYY-MM
+                  example: "2025-09"
+              required: [idComunidad, periodo]
+      responses:
+        '200':
+          description: Datos de la comunidad activa actualizados correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaComunidadActiva' }
+              example:
+                idComunidad: 1
+                nombre: "Pop Fans"
+                publicacionesMes: 260
+                periodo: "2025-10"
+        '400':
+          description: Solicitud inválida o formato de periodo incorrecto (YYYY-MM)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Token inválido o usuario no autorizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Comunidad no encontrada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+
+  /comunidades/grandes/top:
+    get:
+      summary: Obtener las comunidades más grandes del mes
+      description: >
+        Devuelve el ranking de comunidades con más miembros durante el mes indicado, se tiene que comunicar con la API de comunidades.
+      tags: [Comunidades]
+      responses:
+        '200':
+          description: Top de comunidades más grandes obtenido correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaComunidadesMasGrandes' }
+              example:
+                - idComunidad: 4
+                  nombre: "Electro Beats"
+                  miembros: 1892
+                  periodo: "2025-09"
+                - idComunidad: 5
+                  nombre: "Jazz Lovers"
+                  miembros: 1650
+                  periodo: "2025-09"
+                - idComunidad: 6
+                  nombre: "K-Pop World"
+                  miembros: 1523
+                  periodo: "2025-09"
+        '404':
+          description: No se encontraron comunidades grandes
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+    put:
+      summary: Actualizar el top de comunidades más grandes
+      description: >
+        Recalcula el top de comunidades en base al número de miembros.
+      tags: [Comunidades]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActualizarEstadisticaRequest' }
+            example:
+              periodo: "2025-09"
+      responses:
+        '200':
+          description: Top de comunidades más grandes actualizado correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaComunidadesMasGrandes' }
+        '400':
+          description: Solicitud inválida o formato de periodo incorrecto (YYYY-MM)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Token inválido o usuario no autorizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  
+  /comunidades/grandes/{id}:
+    get:
+      summary: Obtener los datos de una comunidad grande específica
+      description: >
+        Devuelve la información mensual de una comunidad destacada por su número de miembros.
+        Se comunica con la API de Comunidades para obtener los datos.
+      tags: [Comunidades]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la comunidad
+          schema: { type: integer, example: 4 }
+      responses:
+        '200':
+          description: Datos de la comunidad grande obtenidos correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaComunidadGrande' }
+              example:
+                idComunidad: 4
+                nombre: "Electro Beats"
+                miembros: 1892
+                periodo: "2025-09"
+        '404':
+          description: Comunidad no encontrada o sin datos disponibles
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /comunidades/grandes:
+    put:
+      summary: Actualizar los datos de una comunidad grande
+      description: >
+        Actualiza la información mensual de una comunidad específica según su número de miembros.
+      tags: [Comunidades]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idComunidad:
+                  type: integer
+                  description: ID de la comunidad a actualizar
+                  example: 4
+                periodo:
+                  type: string
+                  description: Periodo en formato YYYY-MM
+                  example: "2025-09"
+              required: [idComunidad, periodo]
+      responses:
+        '200':
+          description: Datos de la comunidad grande actualizados correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaComunidadGrande' }
+              example:
+                idComunidad: 4
+                nombre: "Electro Beats"
+                miembros: 1905
+                periodo: "2025-10"
+        '400':
+          description: Solicitud inválida o formato de periodo incorrecto (YYYY-MM)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Token inválido o usuario no autorizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Comunidad no encontrada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+  
+  /contenidos/valoracion/top:
+    get:
+      summary: Obtener el top de contenidos con mejor valoración del mes
+      description: >
+        Devuelve el ranking de canciones o álbumes con la valoración media más alta del mes.
+      tags: [Contenidos]
+      responses:
+        '200':
+          description: Top de contenidos mejor valorados obtenido correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaTopValoracion' }
+              example:
+                - idElemento: 1
+                  nombre: "Bajo el Sol"
+                  esAlbum: false
+                  valoracionMedia: 4.9
+                  totalValoraciones: 1200
+                  periodo: "2025-09"
+                - idElemento: 2
+                  nombre: "Sueños de Invierno"
+                  esAlbum: true
+                  valoracionMedia: 4.7
+                  totalValoraciones: 980
+                  periodo: "2025-09"
+                - idElemento: 3
+                  nombre: "Luz del Norte"
+                  esAlbum: false
+                  valoracionMedia: 4.6
+                  totalValoraciones: 870
+                  periodo: "2025-09"
+        '404':
+          description: No se encontraron contenidos valorados
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+    put:
+      summary: Actualizar el top de contenidos con mejor valoración
+      description: >
+        Recalcula el top de canciones o álbumes mejor valorados en el mes indicado.
+      tags: [Contenidos]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActualizarEstadisticaRequest' }
+            example:
+              periodo: "2025-09"
+      responses:
+        '200':
+          description: Top de contenidos mejor valorados actualizado correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaTopValoracion' }
+        '400':
+          description: Solicitud inválida o formato de periodo incorrecto (YYYY-MM)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Token inválido o usuario no autorizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+
+
+  /contenidos/comentarios/top:
+    get:
+      summary: Obtener el top de contenidos con más comentarios del mes
+      description: >
+        Devuelve el ranking de canciones o álbumes con mayor cantidad de comentarios durante el mes.
+      tags: [Contenidos]
+      responses:
+        '200':
+          description: Top de contenidos con más comentarios obtenido correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaTopComentarios' }
+              example:
+                - idElemento: 4
+                  nombre: "Ecos del Mar"
+                  esAlbum: false
+                  comentariosTotales: 560
+                  periodo: "2025-09"
+                - idElemento: 5
+                  nombre: "Noches de Cristal"
+                  esAlbum: true
+                  comentariosTotales: 498
+                  periodo: "2025-09"
+                - idElemento: 6
+                  nombre: "Melodía Infinita"
+                  esAlbum: false
+                  comentariosTotales: 455
+                  periodo: "2025-09"
+        '404':
+          description: No se encontraron contenidos comentados
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+    put:
+      summary: Actualizar el top de contenidos con más comentarios
+      description: >
+        Recalcula el top de canciones o álbumes con mayor número de comentarios del mes.
+      tags: [Contenidos]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActualizarEstadisticaRequest' }
+            example:
+              periodo: "2025-09"
+      responses:
+        '200':
+          description: Top de contenidos con más comentarios actualizado correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaTopComentarios' }
+        '400':
+          description: Solicitud inválida o formato de periodo incorrecto (YYYY-MM)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Token inválido o usuario no autorizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+
+
+  /contenidos/reproducciones/top:
+    get:
+      summary: Obtener el top de contenidos más reproducidos del mes
+      description: >
+        Devuelve el ranking de canciones o álbumes con más reproducciones durante el mes.
+      tags: [Contenidos]
+      responses:
+        '200':
+          description: Top de contenidos más reproducidos obtenido correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaTopReproducciones' }
+              example:
+                - idElemento: 7
+                  nombre: "Aurora Boreal"
+                  esAlbum: false
+                  numRep: 18542
+                  periodo: "2025-09"
+                - idElemento: 8
+                  nombre: "Sombras del Tiempo"
+                  esAlbum: true
+                  numRep: 16320
+                  periodo: "2025-09"
+                - idElemento: 9
+                  nombre: "Ritmo Salvaje"
+                  esAlbum: false
+                  numRep: 15280
+                  periodo: "2025-09"
+        '404':
+          description: No se encontraron contenidos reproducidos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+    put:
+      summary: Actualizar el top de contenidos más reproducidos
+      description: >
+        Recalcula el top de canciones o álbumes con más reproducciones durante el mes indicado.
+      tags: [Contenidos]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ActualizarEstadisticaRequest' }
+            example:
+              periodo: "2025-09"
+      responses:
+        '200':
+          description: Top de contenidos más reproducidos actualizado correctamente
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EstadisticaTopReproducciones' }
+        '400':
+          description: Solicitud inválida o formato de periodo incorrecto (YYYY-MM)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Token inválido o usuario no autorizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    EstadisticaValoracionElemento:
+      type: object
+      description: Valoración media de un elemento (canción o álbum) para un periodo mensual.
+      properties:
+        idElemento:
+          type: integer
+          example: 42
+        nombre:
+          type: string
+          example: "Bajo el Sol"
+        esAlbum:
+          type: boolean
+          example: false
+        valoracionMedia:
+          type: number
+          format: float
+          example: 4.6
+        totalValoraciones:
+          type: integer
+          example: 128
+        periodo:
+          type: string
+          example: "2025-09"
+
+    EstadisticaComentariosElemento:
+      type: object
+      description: Número de comentarios sobre un elemento durante el mes.
+      properties:
+        idElemento:
+          type: integer
+          example: 42
+        nombre:
+          type: string
+          example: "Bajo el Sol"
+        esAlbum:
+          type: boolean
+          example: false
+        comentariosTotales:
+          type: integer
+          example: 35
+        periodo:
+          type: string
+          example: "2025-09"
+
+    EstadisticaReproduccionesElemento:
+      type: object
+      description: Reproducciones de una canción (o suma en álbum) para el periodo indicado.
+      properties:
+        idElemento:
+          type: integer
+          example: 42
+        nombre:
+          type: string
+          example: "Bajo el Sol"
+        esAlbum:
+          type: boolean
+          example: false
+        numRep:
+          type: integer
+          example: 8542
+        periodo:
+          type: string
+          example: "2025-09"
+
+    EstadisticaOyentesArtista:
+      type: object
+      description: Oyentes de un artista durante el periodo mensual.
+      properties:
+        idArtista:
+          type: integer
+          example: 10
+        nombreArtistico:
+          type: string
+          example: "Luna Nova"
+        esAlbum:
+          type: boolean
+          example: false
+        oyentes:
+          type: integer
+          example: 15600
+        periodo:
+          type: string
+          example: "2025-09"
+
+    EstadisticaArtistasMasBuscados:
+      type: array
+      description: Lista de artistas más buscados del periodo indicado.
+      items:
+        type: object
+        properties:
+          idArtista:
+            type: integer
+            example: 10
+          nombreArtistico:
+            type: string
+            example: "Luna Nova"
+          esAlbum:
+            type: boolean
+            example: false
+          busquedas:
+            type: integer
+            example: 15600
+          periodo:
+            type: string
+            example: "2025-09"
+      example:
+        - idArtista: 1
+          nombreArtistico: "Luna Nova"
+          esAlbum: false
+          busquedas: 15600
+          periodo: "2025-09"
+        - idArtista: 2
+          nombreArtistico: "Solaris"
+          esAlbum: false
+          busquedas: 14320
+          periodo: "2025-09"
+        - idArtista: 3
+          nombreArtistico: "Echo Wave"
+          esAlbum: false
+          busquedas: 12890
+          periodo: "2025-09"
+
+    EstadisticaSeguidoresArtista:
+      type: object
+      description: Seguidores de un artista durante el periodo mensual (p.ej., a partir de usuario_artista).
+      properties:
+        idArtista:
+          type: integer
+          example: 10
+        nombreArtistico:
+          type: string
+          example: "Luna Nova"
+        seguidores:
+          type: integer
+          example: 9820
+        periodo:
+          type: string
+          example: "2025-09"
+
+    EstadisticaGenero:
+      type: array
+      description: Lista de géneros musicales con su popularidad (porcentaje sobre escuchas/valoraciones) en el periodo.
+      items:
+        type: object
+        properties:
+          idGenero:
+            type: integer
+            example: 3
+          nombreGenero:
+            type: string
+            example: "Pop"
+          porcentajeEscuchas:
+            type: number
+            format: float
+            example: 32.4
+          periodo:
+            type: string
+            example: "2025-09"
+      example:
+        - idGenero: 1
+          nombreGenero: "Pop"
+          porcentajeEscuchas: 32.4
+          periodo: "2025-09"
+        - idGenero: 2
+          nombreGenero: "Rock"
+          porcentajeEscuchas: 27.1
+          periodo: "2025-09"
+        - idGenero: 3
+          nombreGenero: "Reggaetón"
+          porcentajeEscuchas: 18.7
+          periodo: "2025-09"
+
+    EstadisticaComunidadesMasActivas:
+      type: array
+      description: Lista de comunidades más activas del periodo indicado (por número de publicaciones).
+      items:
+        type: object
+        properties:
+          idComunidad:
+            type: integer
+            example: 1
+          nombre:
+            type: string
+            example: "Pop Fans"
+          publicacionesMes:
+            type: integer
+            example: 245
+          periodo:
+            type: string
+            example: "2025-09"
+      example:
+        - idComunidad: 1
+          nombre: "Pop Fans"
+          publicacionesMes: 245
+          periodo: "2025-09"
+        - idComunidad: 2
+          nombre: "Rock Nation"
+          publicacionesMes: 198
+          periodo: "2025-09"
+        - idComunidad: 3
+          nombre: "Indie Vibes"
+          publicacionesMes: 174
+          periodo: "2025-09"
+
+
+    EstadisticaComunidadesMasGrandes:
+      type: array
+      description: Lista de comunidades más grandes del periodo indicado (por número de miembros).
+      items:
+        type: object
+        properties:
+          idComunidad:
+            type: integer
+            example: 4
+          nombre:
+            type: string
+            example: "Electro Beats"
+          miembros:
+            type: integer
+            example: 1892
+          periodo:
+            type: string
+            example: "2025-09"
+      example:
+        - idComunidad: 4
+          nombre: "Electro Beats"
+          miembros: 1892
+          periodo: "2025-09"
+        - idComunidad: 5
+          nombre: "Jazz Lovers"
+          miembros: 1650
+          periodo: "2025-09"
+        - idComunidad: 6
+          nombre: "K-Pop World"
+          miembros: 1523
+          periodo: "2025-09"
+
+
+    ActualizarEstadisticaRequest:
+      type: object
+      properties:
+        idElemento:
+          type: integer
+          example: 42
+        esAlbum:
+          type: boolean
+          example: false
+        periodo:
+          type: string
+          description: Periodo mensual (formato YYYY-MM)
+          example: "2025-09"
+
+    EstadisticaTopValoracion:
+      type: array
+      description: Lista de canciones o álbumes mejor valorados del mes.
+      items:
+        type: object
+        properties:
+          idElemento:
+            type: integer
+            example: 1
+          nombre:
+            type: string
+            example: "Bajo el Sol"
+          esAlbum:
+            type: boolean
+            example: false
+          valoracionMedia:
+            type: number
+            format: float
+            example: 4.9
+          totalValoraciones:
+            type: integer
+            example: 1200
+          periodo:
+            type: string
+            example: "2025-09"
+      example:
+        - idElemento: 1
+          nombre: "Bajo el Sol"
+          esAlbum: false
+          valoracionMedia: 4.9
+          totalValoraciones: 1200
+          periodo: "2025-09"
+        - idElemento: 2
+          nombre: "Sueños de Invierno"
+          esAlbum: true
+          valoracionMedia: 4.7
+          totalValoraciones: 980
+          periodo: "2025-09"
+        - idElemento: 3
+          nombre: "Luz del Norte"
+          esAlbum: false
+          valoracionMedia: 4.6
+          totalValoraciones: 870
+          periodo: "2025-09"
+
+
+    EstadisticaTopComentarios:
+      type: array
+      description: Lista de canciones o álbumes con mayor cantidad de comentarios del mes.
+      items:
+        type: object
+        properties:
+          idElemento:
+            type: integer
+            example: 4
+          nombre:
+            type: string
+            example: "Ecos del Mar"
+          esAlbum:
+            type: boolean
+            example: false
+          comentariosTotales:
+            type: integer
+            example: 560
+          periodo:
+            type: string
+            example: "2025-09"
+      example:
+        - idElemento: 4
+          nombre: "Ecos del Mar"
+          esAlbum: false
+          comentariosTotales: 560
+          periodo: "2025-09"
+        - idElemento: 5
+          nombre: "Noches de Cristal"
+          esAlbum: true
+          comentariosTotales: 498
+          periodo: "2025-09"
+        - idElemento: 6
+          nombre: "Melodía Infinita"
+          esAlbum: false
+          comentariosTotales: 455
+          periodo: "2025-09"
+
+
+    EstadisticaTopReproducciones:
+      type: array
+      description: Lista de canciones o álbumes más reproducidos del mes.
+      items:
+        type: object
+        properties:
+          idElemento:
+            type: integer
+            example: 7
+          nombre:
+            type: string
+            example: "Aurora Boreal"
+          esAlbum:
+            type: boolean
+            example: false
+          numRep:
+            type: integer
+            example: 18542
+          periodo:
+            type: string
+            example: "2025-09"
+      example:
+        - idElemento: 7
+          nombre: "Aurora Boreal"
+          esAlbum: false
+          numRep: 18542
+          periodo: "2025-09"
+        - idElemento: 8
+          nombre: "Sombras del Tiempo"
+          esAlbum: true
+          numRep: 16320
+          periodo: "2025-09"
+        - idElemento: 9
+          nombre: "Ritmo Salvaje"
+          esAlbum: false
+          numRep: 15280
+          periodo: "2025-09"
+
+    EstadisticaTopOyentesArtistas:
+      type: array
+      description: Lista de artistas con mayor número de oyentes del mes.
+      items:
+        type: object
+        properties:
+          idArtista:
+            type: integer
+            example: 1
+          nombreArtistico:
+            type: string
+            example: "Luna Nova"
+          oyentes:
+            type: integer
+            example: 15600
+          periodo:
+            type: string
+            example: "2025-09"
+      example:
+        - idArtista: 1
+          nombreArtistico: "Luna Nova"
+          oyentes: 15600
+          periodo: "2025-09"
+        - idArtista: 2
+          nombreArtistico: "Solaris"
+          oyentes: 14890
+          periodo: "2025-09"
+        - idArtista: 3
+          nombreArtistico: "Echo Wave"
+          oyentes: 13950
+          periodo: "2025-09"
+
+
+    EstadisticaTopSeguidoresArtistas:
+      type: array
+      description: Lista de artistas con mayor número de seguidores del mes.
+      items:
+        type: object
+        properties:
+          idArtista:
+            type: integer
+            example: 4
+          nombreArtistico:
+            type: string
+            example: "María Cruz"
+          seguidores:
+            type: integer
+            example: 9800
+          periodo:
+            type: string
+            example: "2025-09"
+      example:
+        - idArtista: 4
+          nombreArtistico: "María Cruz"
+          seguidores: 9800
+          periodo: "2025-09"
+        - idArtista: 5
+          nombreArtistico: "Vortex"
+          seguidores: 9200
+          periodo: "2025-09"
+        - idArtista: 6
+          nombreArtistico: "Zeta Flow"
+          seguidores: 8750
+          periodo: "2025-09"
+          
+    EstadisticaComunidadGrande:
+      type: object
+      properties:
+        idComunidad:
+          type: integer
+          example: 4
+        nombre:
+          type: string
+          example: "Electro Beats"
+        miembros:
+          type: integer
+          example: 1892
+        periodo:
+          type: string
+          example: "2025-09"
+    EstadisticaComunidadActiva:
+      type: object
+      properties:
+        idComunidad:
+          type: integer
+          example: 1
+        nombre:
+          type: string
+          example: "Pop Fans"
+        publicacionesMes:
+          type: integer
+          example: 245
+        periodo:
+          type: string
+          example: "2025-09"
+
+    ErrorResponse:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: integer
+          description: Código HTTP o interno del error
+          example: 400
+        message:
+          type: string
+          description: Descripción legible del error
+          example: "Solicitud inválida"
+        path:
+          type: string
+          description: Endpoint donde ocurrió el error
+          example: "/v1/estadisticas"
