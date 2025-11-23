@@ -106,6 +106,3 @@ docker-compose down
 ### ❌ Error de conexión con Usuarios/Contenido
 
 Si la API da error al intentar sincronizar oyentes (`Connection refused`), verifica que tienes los **otros microservicios encendidos** en tu ordenador (fuera de Docker) en los puertos `3000` y `8083` respectivamente.
-
-```
-```
