@@ -1,8 +1,9 @@
 from fastapi import HTTPException
 import requests
 from backend.model.dao.postgresql.postgresDAOFactory import PostgreSQLDAOFactory
-from backend.controller.config import MS_USUARIOS_BASE_URL, CONTENIDO_API_BASE_URL
+from backend.controller.config import MS_USUARIOS_BASE_URL, CONTENIDO_API_BASE_URL, COMUNIDAD_API_BASE_URL
 from backend.model.dto.contenidoDTO import ContenidoDTO
+from backend.model.dto.comunidadMensualDTO import ComunidadDTO
 
 
 class Model:
@@ -13,8 +14,10 @@ class Model:
         self.artistasMensualesDAO = self.factory.get_artistas_mensuales_dao()
         self.busquedasArtistasDAO = self.factory.get_busquedas_artistas_dao()
         self.contenidoDAO = self.factory.get_contenido_dao()      
+        self.comunidadDAO = self.factory.get_comunidad_dao()
         self.URL_CONTENIDOS = f"{CONTENIDO_API_BASE_URL}/elementos" 
         self.URL_VALORACIONES = f"{CONTENIDO_API_BASE_URL}/usuarioValoraElem"
+        self.URL_COMUNIDAD = f"{COMUNIDAD_API_BASE_URL}/comunidad"
         
         # IMPORTANTE: Asignamos la sesión de DB para poder hacer rollbacks
         # Asumo que tu factory tiene la propiedad 'db' o 'session'. 
@@ -473,4 +476,87 @@ class Model:
         except Exception as e:
             print(f"❌ Error en get_top_generos: {e}")
             self.db.rollback()
+            raise e
+        
+    def sincronizar_comunidad_desde_api(self, id_comunidad):
+        """
+        Sincroniza una comunidad específica buscando en la lista completa de la API externa.
+        """
+        try:
+            self.db.rollback() 
+        except:
+            pass
+            
+        print(f"🔄 Sincronizando comunidad ID: {id_comunidad}...")
+
+        try:
+            # 1. API Comunidad
+            # Probamos CON barra al final porque dijiste que así funcionaba en el navegador
+            url_llamada = f"{self.URL_COMUNIDAD}/"
+            
+            # TRUCO DEL HOST:
+            # Forzamos el Host a 'localhost' para que el servidor de destino no rechace 'host.docker.internal'
+            headers = {
+                "Accept": "application/json",
+                "User-Agent": "PostmanRuntime/7.26.8", # Imitamos a Postman/Navegador
+                "Host": "localhost" 
+            }
+            
+            print(f"📡 GET {url_llamada}")
+            resp = requests.get(url_llamada, headers=headers, timeout=10)
+            
+            # Si da error 400, IMPRIMIMOS EL PORQUÉ
+            if resp.status_code >= 400:
+                print(f"⚠️ El servidor devolvió {resp.status_code}. Cuerpo del error:")
+                print(f"➡️ {resp.text}") # <--- ESTO ES CRUCIAL PARA VER EL ERROR REAL
+            
+            resp.raise_for_status()
+            
+            lista_comunidades = resp.json()
+
+            # 2. Búsqueda manual en la lista
+            datos_comunidad = None
+            target_id = str(id_comunidad)
+            
+            if isinstance(lista_comunidades, list):
+                for item in lista_comunidades:
+                    # Comparamos IDs (string vs string para evitar errores de tipo)
+                    if str(item.get("idComunidad")) == target_id:
+                        datos_comunidad = item
+                        break
+            
+            if not datos_comunidad:
+                print(f"⚠️ Comunidad ID {id_comunidad} no encontrada en la lista externa.")
+                # No lanzamos excepción para no romper el flujo, devolvemos None o un error controlado
+                return None
+
+            # 3. Extracción y Mapeo
+            raw_id = datos_comunidad.get("idComunidad")
+            num_pubs = datos_comunidad.get("numPublicaciones", 0)
+            num_users = datos_comunidad.get("numUsuarios", 0)
+
+            # 4. Guardar
+            dto = ComunidadDTO(
+                idcomunidad=raw_id,
+                numpublicaciones=int(num_pubs),
+                nummiembros=int(num_users)
+            )
+
+            self.comunidadDAO.actualizar_o_insertar_comunidad(dto)
+            self.db.commit()
+            
+            print(f"✅ Comunidad {id_comunidad} sincronizada | Pubs: {num_pubs} | Miembros: {num_users}")
+
+            return {
+                "id": raw_id,
+                "numPublicaciones": num_pubs,
+                "numMiembros": num_users
+            }
+
+        except Exception as e:
+            print(f"❌ Error procesando comunidad: {e}")
+            try:
+                self.db.rollback()
+            except:
+                pass
             raise e

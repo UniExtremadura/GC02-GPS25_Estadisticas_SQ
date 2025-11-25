@@ -56,7 +56,7 @@ async def lifespan(app: FastAPI):
         scheduler.add_job(actualizar_contenido_mensualmente, trigger="cron", day=1, hour=0, minute=5)
         print("🗓️ Scheduler mensual añadido (Contenidos)")
         # scheduler.add_job(
-        #     actualizar_contenido_mensualmente, 
+        #     actualizar_mensualmente, 
         #     trigger="interval", 
         #     seconds=30,
         #     id="test_sync_contenidos", # ID opcional pero útil

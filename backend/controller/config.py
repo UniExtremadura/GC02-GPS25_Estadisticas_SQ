@@ -22,6 +22,11 @@ CONTENIDO_API_BASE_URL = os.getenv(
     "http://localhost:8083/api"
 )
 
+COMUNIDAD_API_BASE_URL = os.getenv(
+    "MS_COMUNIDAD_BASE_URL",
+    "http://localhost:8084"
+)
+
 def setup_cors(app):
     app.add_middleware(
         CORSMiddleware,

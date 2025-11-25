@@ -606,3 +606,36 @@ async def get_top_generos(request: Request, limit: int = 5):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error interno: {str(e)}")
+    
+# ==========================================
+#  COMUNIDADES 
+# ==========================================
+
+@router.put("/comunidad")
+async def sincronizar_comunidad(request: Request):
+    """
+    Sincroniza una comunidad específica trayendo datos frescos de la API externa.
+    Body: { "idComunidad": "1" }
+    Ruta final: /estadisticas/comunidad
+    """
+    try:
+        body = await request.json()
+        id_comunidad = body.get("idComunidad")
+
+        if not id_comunidad:
+            raise HTTPException(status_code=400, detail="JSON inválido: Falta 'idComunidad'.")
+
+        # Llamada al modelo (instancia global definida arriba)
+        resultado = model.sincronizar_comunidad_desde_api(id_comunidad)
+
+        return {
+            "status": "success",
+            "message": "Sincronización de comunidad completada",
+            "data": resultado
+        }
+    
+    except Exception as e:
+        print(f"❌ Error interno comunidad: {e}")
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail=f"Error interno del servidor: {str(e)}")

@@ -2,6 +2,7 @@ from backend.model.dao.postgresql.posgresConnector import PostgreSQLConnector
 from backend.model.dao.postgresql.collection.postgresArtistasMensualesDAO import PostgresArtistasMensualesDAO
 from backend.model.dao.postgresql.collection.postgresBusquedasArtistasDAO import BusquedasArtistasDAO
 from backend.model.dao.postgresql.collection.postgresContenidoDAO import PostgresContenidoDAO
+from backend.model.dao.postgresql.collection.postgesComunidadesMensualesDAO import PostgresComunidadesMensualesDAO
 
 class PostgreSQLDAOFactory:
 
@@ -18,5 +19,8 @@ class PostgreSQLDAOFactory:
     
     def get_contenido_dao(self):
         return PostgresContenidoDAO(self.db)
+    
+    def get_comunidad_dao(self):
+        return PostgresComunidadesMensualesDAO(self.db)
 
 
