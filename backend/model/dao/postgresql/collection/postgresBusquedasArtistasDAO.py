@@ -7,31 +7,24 @@ class BusquedasArtistasDAO(InterfaceBusquedasArtistasDao):
         self.db = db
 
     def insertar_o_actualizar_busqueda(self, id_artista: int, id_usuario: int | None = None):
+        """
+        Registra una nueva búsqueda en el historial.
+        Como es un log, siempre hacemos INSERT (no update).
+        """
         try:
-            sql_check = text("""
-                SELECT COUNT(*) FROM busquedasartistas 
-                WHERE idartista = :idartista AND idusuario = :idusuario
+            # Simplemente insertamos una nueva fila con la fecha actual (NOW)
+            sql_insert = text("""
+                INSERT INTO busquedasartistas (idartista, idusuario, fecha)
+                VALUES (:idartista, :idusuario, NOW())
             """)
-            # Nota: .scalar() es mejor que fetchone()[0] para conteos
-            count = self.db.execute(sql_check, {"idartista": id_artista, "idusuario": id_usuario}).scalar()
-
-            if count > 0:
-                sql_update = text("""
-                    UPDATE busquedasartistas
-                    SET numbusquedas = numbusquedas + 1
-                    WHERE idartista = :idartista AND idusuario = :idusuario
-                """)
-                self.db.execute(sql_update, {"idartista": id_artista, "idusuario": id_usuario})
-            else:
-                sql_insert = text("""
-                    INSERT INTO busquedasartistas (idartista, idusuario)
-                    VALUES (:idartista, :idusuario)
-                """)
-                self.db.execute(sql_insert, {"idartista": id_artista, "idusuario": id_usuario})
-
-            self.db.commit()
+            
+            self.db.execute(sql_insert, {"idartista": id_artista, "idusuario": id_usuario})
+            
+            # El commit lo suele hacer el modelo, pero si aquí controlas la transacción:
+            # self.db.commit() 
+            
         except Exception as e:
-            print(f"❌ Error DAO Busquedas Insert/Update: {e}")
+            print(f"❌ Error DAO Registrando Búsqueda: {e}")
             self.db.rollback()
             raise e
 
