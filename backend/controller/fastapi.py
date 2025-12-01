@@ -66,13 +66,6 @@ async def lifespan(app: FastAPI):
         #     replace_existing=True
         # )
         
-        # scheduler.add_job(
-        #     resetear_busquedas_mensuales, 
-        #     trigger="interval", 
-        #     seconds=15,
-        #     id="job_prueba_busquedas", # ID para evitar duplicados
-        #     replace_existing=True
-        # )
         
         # scheduler.add_job(
         #     actualizar_contenido_mensualmente, 
@@ -82,13 +75,6 @@ async def lifespan(app: FastAPI):
         #     replace_existing=True
         # )
         
-        # scheduler.add_job(
-        #     actualizar_reproducciones_mensuales, 
-        #     trigger="interval", 
-        #     seconds=25,
-        #     id="job_prueba_reproducciones", # ID para evitar duplicados
-        #     replace_existing=True
-        # )
 
         scheduler.start()
         print("🗓️ Scheduler iniciado correctamente", flush=True)

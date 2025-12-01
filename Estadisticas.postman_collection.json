@@ -1,0 +1,298 @@
+{
+	"info": {
+		"_postman_id": "80073c6a-840f-4df4-9dea-32cc0d357ef9",
+		"name": "Estadisticas",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43915286",
+		"_collection_link": "https://asee-mila.postman.co/workspace/ASEE-Mila~1d67a7c6-ee07-4ed7-8421-c87bfc81e8e7/collection/43915286-80073c6a-840f-4df4-9dea-32cc0d357ef9?action=share&source=collection_link&creator=43915286"
+	},
+	"item": [
+		{
+			"name": "Artistas",
+			"item": [
+				{
+					"name": "Todos los artistas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/artistas/oyentes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"artistas",
+								"oyentes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Oyentes artistas por id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/artistas/oyentes/3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"artistas",
+								"oyentes",
+								"3"
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar datos artistas por id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful POST request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idArtista\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/artistas/oyentes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"artistas",
+								"oyentes"
+							]
+						},
+						"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+					},
+					"response": []
+				},
+				{
+					"name": "Artistas por id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"idContenido\": 1\r\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/artistas/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"artistas",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Ranking oyentes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/artistas/ranking/oyentes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"artistas",
+								"ranking",
+								"oyentes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Insertar o actualizar busqueda",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"idArtista\": 1,\n    \"idUsuario\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/artistas/busqueda",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"artistas",
+								"busqueda"
+							]
+						},
+						"description": "This is a PUT request and it is used to overwrite an existing piece of data. For instance, after you create an entity with a POST request, you may want to modify that later. You can do that using a PUT request. You typically identify the entity being updated by including an identifier in the URL (eg. `id=1`).\n\nA successful PUT request typically returns a `200 OK`, `201 Created`, or `204 No Content` response code."
+					},
+					"response": []
+				},
+				{
+					"name": "Ranking artistas mas buscados",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/artistas/top",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"artistas",
+								"top"
+							]
+						},
+						"description": "This is a DELETE request, and it is used to delete data that was previously created via a POST request. You typically identify the entity being updated by including an identifier in the URL (eg. `id=1`).\n\nA successful DELETE request typically returns a `200 OK`, `202 Accepted`, or `204 No Content` response code."
+					},
+					"response": []
+				},
+				{
+					"name": "Busqueda artista por idartista",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idArtista\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/artistas/busqueda/artista/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"artistas",
+								"busqueda",
+								"artista",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Busqueda artista por idusuario",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"idArtista\": 2,\n    \"idUsuario\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/artistas/busqueda/usuario/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"artistas",
+								"busqueda",
+								"usuario",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Comunidad",
+			"item": []
+		},
+		{
+			"name": "Contenido",
+			"item": []
+		}
+	]
+}

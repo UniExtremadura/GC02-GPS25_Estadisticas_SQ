@@ -4,6 +4,8 @@ Este es el microservicio encargado de gestionar las estadísticas (oyentes, valo
 
 El proyecto está totalmente **dockerizado** para facilitar su despliegue y desarrollo.
 
+Existe un **.json** en la ruta inicial que se puede exportar en **Postman** para probar todos los endpoints.
+
 ---
 
 ## 📋 Requisitos Previos
@@ -13,7 +15,7 @@ Para ejecutar este proyecto, necesitas tener instalado en tu ordenador:
 * **Docker Desktop** (asegúrate de que esté abierto y corriendo).
 * **Git**.
 
-> **⚠️ Nota importante:** Este microservicio se conecta con los servicios de **Usuarios (Puerto 3000)** y **Contenido (Puerto 8083)**. Para que la sincronización funcione correctamente, asegúrate de tener esos servicios levantados en tu máquina local.
+> **⚠️ Nota importante:** Este microservicio se conecta con los servicios de **Usuarios (Puerto 3000)**, **Contenido (Puerto 8083)**, **Comunidades (Puerto 8084)** y **Frontend (Puerto 3001)**. Para que la sincronización funcione correctamente, asegúrate de tener esos servicios levantados en tu máquina local.
 
 ---
 
